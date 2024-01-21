@@ -28,20 +28,20 @@ import inspect
 import itertools
 import json
 import warnings
-from typing import Dict, List, Callable
+from typing import Callable, Dict, List
 
 import dash
 from dash import Dash, dependencies
-from dash._utils import split_callback_id, inputs_to_dict
+from dash._utils import inputs_to_dict, split_callback_id
 from django.urls import reverse
 from django.utils.text import slugify
 from flask import Flask
 
 from .app_name import app_name, main_view_label
 from .middleware import EmbeddedHolder
+from .util import DjangoPlotlyJSONEncoder
 from .util import serve_locally as serve_locally_setting
-from .util import stateless_app_lookup_hook
-from .util import static_asset_path, DjangoPlotlyJSONEncoder
+from .util import stateless_app_lookup_hook, static_asset_path
 
 try:
     from dataclasses import dataclass
@@ -298,8 +298,9 @@ class DjangoDash:
          or None if all parameters should be injected."""
         n_dash_parameters = len(inputs or []) + len(state or [])
 
+        parameters = {key: value for key, value in inspect.signature(func).parameters.items() if key != "self"}
         parameter_types = {kind: [p.name for p in parameters] for kind, parameters in
-                           itertools.groupby(inspect.signature(func).parameters.values(), lambda p: p.kind)}
+                           itertools.groupby(parameters.values(), lambda p: p.kind)}
         if inspect.Parameter.VAR_KEYWORD in parameter_types:
             # there is some **kwargs, inject all parameters
             expanded = None
