@@ -39,9 +39,8 @@ from flask import Flask
 
 from .app_name import app_name, main_view_label
 from .middleware import EmbeddedHolder
-from .util import DjangoPlotlyJSONEncoder
+from .util import DjangoPlotlyJSONEncoder, stateless_app_lookup_hook, static_asset_path
 from .util import serve_locally as serve_locally_setting
-from .util import stateless_app_lookup_hook, static_asset_path
 
 try:
     from dataclasses import dataclass
@@ -697,7 +696,7 @@ class WrappedDash(Dash):
 
         callback = callback_info["callback"]
         # smart injection of parameters if .expanded is defined
-        if callback.expanded is not None:
+        if hasattr(callback, "expanded") and callback.expanded is not None:
             parameters_to_inject = {*callback.expanded, 'outputs_list'}
             res = callback(*args, **{k: v for k, v in argMap.items() if k in parameters_to_inject})
         else:
