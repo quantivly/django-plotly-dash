@@ -384,7 +384,9 @@ class DjangoDash:
             # to inject properly only the expanded arguments the function can accept
             # if .expanded is None => inject all
             # if .expanded is a list => inject only
-            func.expanded = DjangoDash.get_expanded_arguments(func, inputs, state)
+            setattr(
+                func, "expanded", DjangoDash.get_expanded_arguments(func, inputs, state)
+            )
             return func
 
         return wrap_func
