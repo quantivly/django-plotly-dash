@@ -1,4 +1,4 @@
-'''
+"""
 Routing for standard pipe connections
 
 Copyright (c) 2018 Gibbs Consulting and others - see CONTRIBUTIONS.md
@@ -20,7 +20,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-'''
+"""
 
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
@@ -32,29 +32,50 @@ from .util import pipe_ws_endpoint_name, http_endpoint, http_poke_endpoint_enabl
 
 try:
     from channels.http import AsgiHandler
+
     OLDER_CHANNELS = True
 except:
     from django.core.asgi import get_asgi_application
+
     OLDER_CHANNELS = False
 
 
 # TODO document this and discuss embedding with other routes
 
-http_routes = [
-    ]
+http_routes = []
 
 
 if http_poke_endpoint_enabled():
-    http_routes.append(re_path(http_endpoint("poke"), PokePipeConsumer if OLDER_CHANNELS else PokePipeConsumer.as_asgi()))
+    http_routes.append(
+        re_path(
+            http_endpoint("poke"),
+            PokePipeConsumer if OLDER_CHANNELS else PokePipeConsumer.as_asgi(),
+        )
+    )
 
 
 if OLDER_CHANNELS:
-    http_routes.append(re_path("^", AsgiHandler)) # AsgiHandler is 'the normal Django view handlers'
+    http_routes.append(
+        re_path("^", AsgiHandler)
+    )  # AsgiHandler is 'the normal Django view handlers'
 else:
     http_routes.append(re_path("^", get_asgi_application()))
 
 
-application = ProtocolTypeRouter({
-    'websocket': AuthMiddlewareStack(URLRouter([re_path(pipe_ws_endpoint_name(), MessageConsumer if OLDER_CHANNELS else MessageConsumer.as_asgi()),])),
-    'http': AuthMiddlewareStack(URLRouter(http_routes)),
-})
+application = ProtocolTypeRouter(
+    {
+        "websocket": AuthMiddlewareStack(
+            URLRouter(
+                [
+                    re_path(
+                        pipe_ws_endpoint_name(),
+                        MessageConsumer
+                        if OLDER_CHANNELS
+                        else MessageConsumer.as_asgi(),
+                    ),
+                ]
+            )
+        ),
+        "http": AuthMiddlewareStack(URLRouter(http_routes)),
+    }
+)

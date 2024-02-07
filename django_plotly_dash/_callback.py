@@ -4,10 +4,11 @@
 
 import dash._callback
 
-from dash._callback import (handle_grouped_callback_args,
-                            insert_callback,
-                            NoUpdate,
-                            )
+from dash._callback import (
+    handle_grouped_callback_args,
+    insert_callback,
+    NoUpdate,
+)
 import collections
 from functools import wraps
 
@@ -75,8 +76,7 @@ def register_callback(
                 args, inputs_state_indices
             )
 
-            func_kwargs = {**func_kwargs,
-                           **kwargs}
+            func_kwargs = {**func_kwargs, **kwargs}
 
             # don't touch the comment on the next line - used by debugger
             output_value = func(*func_args, **func_kwargs)  # %% callback invoked %%
