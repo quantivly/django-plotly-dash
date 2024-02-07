@@ -69,21 +69,41 @@ class AppRegistry:
     def __init__(self):
         self.apps: dict[str, DjangoDash] = {}
 
-    def get_local_stateless_by_name(self, name):
-        """
-        Locate a registered dash app by name, and return a DjangoDash instance encapsulating the app.
+    def get_local_stateless_by_name(self, name: str) -> DjangoDash:
+        """Get a stateless app by name.
+
+        Parameters
+        ----------
+        name : str
+            The name of the app to retrieve.
+
+        Returns
+        -------
+        DjangoDash
+            The stateless app.
+
+        Raises
+        ------
+        KeyError
+            If the app is not found.
         """
         app = None
         if name not in self.apps:
             app = self.lookup_stateless_app(name)
         if not app:
             # TODO wrap this in raising a 404 if not found
-            raise KeyError("Unable to find stateless DjangoApp called %s" % name)
+            raise KeyError(f"Unable to find stateless DjangoApp called {name}!")
         return app
 
     @property
     def lookup_stateless_app(self) -> Callable:
-        "Return the stateless app lookup function"
+        """Get the stateless app lookup function.
+
+        Returns
+        -------
+        Callable
+            The stateless app lookup function.
+        """
         if self._stateless_app_lookup_func is None:
             self._stateless_app_lookup_func = stateless_app_lookup_hook()
         return self._stateless_app_lookup_func
