@@ -61,9 +61,6 @@ class CallbackContext:
     triggered: list
 
 
-uid_counter: int = 0
-
-
 class AppRegistry:
     "Registry of all locally registered apps"
 
