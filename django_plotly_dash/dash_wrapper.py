@@ -24,6 +24,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
+from __future__ import annotations
+
 import inspect
 import itertools
 import json
@@ -61,36 +63,33 @@ class CallbackContext:
 
 uid_counter: int = 0
 
-usable_apps: dict[str, "DjangoDash"] = {}
-
-_stateless_app_lookup_func = None
-
 
 class AppRegistry:
     "Registry of all locally registered apps"
 
+    _stateless_app_lookup_func: Callable | None = None
+
     def __init__(self):
-        self.apps = {}
+        self.apps: dict[str, DjangoDash] = {}
 
     def get_local_stateless_by_name(self, name):
         """
         Locate a registered dash app by name, and return a DjangoDash instance encapsulating the app.
         """
-        sa = self.apps.get(name, None)
-
-        if not sa:
-            global _stateless_app_lookup_func  # pylint: disable=global-statement
-
-            if _stateless_app_lookup_func is None:
-                _stateless_app_lookup_func = stateless_app_lookup_hook()
-
-            sa = _stateless_app_lookup_func(name)
-
-        if not sa:
+        app = None
+        if name not in self.apps:
+            app = self.lookup_stateless_app(name)
+        if not app:
             # TODO wrap this in raising a 404 if not found
             raise KeyError("Unable to find stateless DjangoApp called %s" % name)
+        return app
 
-        return sa
+    @property
+    def lookup_stateless_app(self) -> Callable:
+        "Return the stateless app lookup function"
+        if self._stateless_app_lookup_func is None:
+            self._stateless_app_lookup_func = stateless_app_lookup_hook()
+        return self._stateless_app_lookup_func
 
 
 registry = AppRegistry()
@@ -127,13 +126,11 @@ class DjangoDash:
         suppress_callback_exceptions=False,
         external_stylesheets=None,
         external_scripts=None,
-        registry: AppRegistry = registry,
         **kwargs,
     ):  # pylint: disable=unused-argument, too-many-arguments
         # store arguments to pass them later to the WrappedDash instance
         self.external_stylesheets = external_stylesheets or []
         self.external_scripts = external_scripts or []
-        self.registry = registry
         self._kwargs = kwargs
         if kwargs:
             warnings.warn(
@@ -144,9 +141,7 @@ class DjangoDash:
             )
 
         if name is None:
-            global uid_counter  # pylint: disable=global-statement
-            uid_counter += 1
-            self._uid = "djdash_%i" % uid_counter
+            self.uid = f"djdash_{len(registry.apps)}"
         else:
             self._uid = name
         self.layout = None
@@ -156,7 +151,7 @@ class DjangoDash:
         self.css = Holder()
         self.scripts = Holder()
 
-        self.registry.apps[self._uid] = self
+        registry.apps[self._uid] = self
 
         if serve_locally is None:
             self._serve_locally = serve_locally_setting()
