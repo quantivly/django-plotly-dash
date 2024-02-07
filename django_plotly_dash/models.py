@@ -67,7 +67,7 @@ class StatelessApp(models.Model):
         return dateless_dash_app
 
 
-def find_stateless_by_name(name):
+def find_stateless_by_name(name: str):
     """
     Find stateless app given its name
 
@@ -75,15 +75,13 @@ def find_stateless_by_name(name):
     If the app does not have an ORM entry then a StatelessApp model instance is created.
     """
     try:
-        dsa_app = StatelessApp.objects.get(app_name=name)  # pylint: disable=no-member
-        return dsa_app.as_dash_app()
-    except:  # pylint: disable=bare-except
-        pass
-
-    dash_app = registry.get_local_stateless_by_name(name)
-    dsa_app = StatelessApp(app_name=name)
-    dsa_app.save()
-    return dash_app
+        app_instance = StatelessApp.objects.get(app_name=name)  # pylint: disable=no-member
+    except StatelessApp.DoesNotExist:
+        dash_app = registry.get_local_stateless_by_name(name)
+        app_instance = StatelessApp.objects.create(app_name=name)
+        return dash_app
+    else:
+        return app_instance.as_dash_app()
 
 
 def check_stateless_loaded():

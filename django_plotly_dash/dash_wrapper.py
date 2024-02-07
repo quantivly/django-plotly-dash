@@ -31,7 +31,7 @@ import itertools
 import json
 import warnings
 from dataclasses import dataclass
-from typing import Any, Callable
+from typing import Any
 
 import dash
 from dash import Dash, dependencies
@@ -41,12 +41,9 @@ from django.utils.text import slugify
 from flask import Flask
 
 from django_plotly_dash.app_name import app_name, main_view_label
+from django_plotly_dash.app_registry import registry
 from django_plotly_dash.middleware import EmbeddedHolder
-from django_plotly_dash.util import (
-    DjangoPlotlyJSONEncoder,
-    stateless_app_lookup_hook,
-    static_asset_path,
-)
+from django_plotly_dash.util import DjangoPlotlyJSONEncoder, static_asset_path
 from django_plotly_dash.util import serve_locally as serve_locally_setting
 
 
@@ -59,57 +56,6 @@ class CallbackContext:
     outputs_list: list
     outputs: dict
     triggered: list
-
-
-class AppRegistry:
-    "Registry of all locally registered apps"
-
-    _stateless_app_lookup_func: Callable | None = None
-
-    def __init__(self):
-        self.apps: dict[str, DjangoDash] = {}
-
-    def get_local_stateless_by_name(self, name: str) -> DjangoDash:
-        """Get a stateless app by name.
-
-        Parameters
-        ----------
-        name : str
-            The name of the app to retrieve.
-
-        Returns
-        -------
-        DjangoDash
-            The stateless app.
-
-        Raises
-        ------
-        KeyError
-            If the app is not found.
-        """
-        app = None
-        if name not in self.apps:
-            app = self.lookup_stateless_app(name)
-        if not app:
-            # TODO wrap this in raising a 404 if not found
-            raise KeyError(f"Unable to find stateless DjangoApp called {name}!")
-        return app
-
-    @property
-    def lookup_stateless_app(self) -> Callable:
-        """Get the stateless app lookup function.
-
-        Returns
-        -------
-        Callable
-            The stateless app lookup function.
-        """
-        if self._stateless_app_lookup_func is None:
-            self._stateless_app_lookup_func = stateless_app_lookup_hook()
-        return self._stateless_app_lookup_func
-
-
-registry = AppRegistry()
 
 
 class Holder:
@@ -158,7 +104,7 @@ class DjangoDash:
             )
 
         if name is None:
-            self.uid = f"djdash_{len(registry.apps)}"
+            self.uid = f"djdash_{len(registry.apps) + 1}"
         else:
             self._uid = name
         self.layout = None
@@ -655,8 +601,8 @@ class WrappedDash(Dash):
     # pylint: disable=too-many-locals
     def dispatch_with_args(self, body: dict[str, Any], argMap: dict[str, Any]):
         "Perform callback dispatching, with enhanced arguments and recording of response"
-        inputs = body.get("inputs", [])
-        input_values = inputs_to_dict(inputs)
+        inputs_list = body.get("inputs", [])
+        input_values = inputs_to_dict(inputs_list)
         states = body.get("state", [])
         output = body["output"]
         outputs_list = body.get("outputs") or split_callback_id(output)
@@ -666,7 +612,7 @@ class WrappedDash(Dash):
         ]
 
         callback_context_info = {
-            "inputs_list": inputs,
+            "inputs_list": inputs_list,
             "inputs": input_values,
             "states_list": states,
             "states": inputs_to_dict(states),
@@ -698,7 +644,7 @@ class WrappedDash(Dash):
 
         args = []
 
-        for c in inputs + states:
+        for c in inputs_list + states:
             if isinstance(c, list):  # ALL, ALLSMALLER
                 v = [ci.get("value") for ci in c]
                 if da:
