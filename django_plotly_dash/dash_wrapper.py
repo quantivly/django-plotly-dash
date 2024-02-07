@@ -29,7 +29,7 @@ import itertools
 import json
 import warnings
 from dataclasses import dataclass
-from typing import Callable, Dict, List
+from typing import Callable
 
 import dash
 from dash import Dash, dependencies
@@ -50,13 +50,13 @@ from django_plotly_dash.util import serve_locally as serve_locally_setting
 
 @dataclass(frozen=True)
 class CallbackContext:
-    inputs_list: List
-    inputs: Dict
-    states_list: List
-    states: Dict
-    outputs_list: List
-    outputs: Dict
-    triggered: List
+    inputs_list: list
+    inputs: dict
+    states_list: list
+    states: dict
+    outputs_list: list
+    outputs: dict
+    triggered: list
 
 
 uid_counter = 0
