@@ -59,18 +59,17 @@ class CallbackContext:
     triggered: list
 
 
-uid_counter = 0
+uid_counter: int = 0
 
-usable_apps = {}
+usable_apps: dict[str, "DjangoDash"] = {}
 
 _stateless_app_lookup_func = None
 
 
-def add_usable_app(name, app):
+def add_usable_app(name: str, app: "DjangoDash") -> None:
     "Add app to local registry by name"
     global usable_apps  # pylint: disable=global-statement
     usable_apps[name] = app
-    return name
 
 
 def all_apps():
@@ -204,7 +203,7 @@ class DjangoDash:
         self.caller_module = inspect.getmodule(caller_frame[0])
         try:
             self.caller_module_location = inspect.getfile(self.caller_module)
-        except:
+        except TypeError:
             self.caller_module_location = None
         self.assets_folder = "assets"
 
@@ -599,7 +598,7 @@ class WrappedDash(Dash):
         try:
             for c in component.children:
                 self._fix_component_id(c)
-        except:  # pylint: disable=bare-except
+        except Exception:
             pass
 
     def _fix_id(self, name):
