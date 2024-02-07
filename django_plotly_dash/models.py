@@ -25,19 +25,14 @@ SOFTWARE.
 import json
 import logging
 
-from django.db import models
 from django.contrib import admin
-from django.utils.text import slugify
+from django.db import models
 from django.shortcuts import get_object_or_404
+from django.utils.text import slugify
 
-from .dash_wrapper import get_local_stateless_by_name, get_local_stateless_list, wid2str
+from django_plotly_dash.dash_wrapper import registry, wid2str
 
 logger = logging.getLogger(__name__)
-
-
-def get_stateless_by_name(name):
-    "Locate stateless app instance given its name"
-    return get_local_stateless_by_name(name)
 
 
 class StatelessApp(models.Model):
@@ -67,7 +62,7 @@ class StatelessApp(models.Model):
         """
         dateless_dash_app = getattr(self, "_stateless_dash_app_instance", None)
         if not dateless_dash_app:
-            dateless_dash_app = get_stateless_by_name(self.app_name)
+            dateless_dash_app = registry.get_local_stateless_by_name(self.app_name)
             setattr(self, "_stateless_dash_app_instance", dateless_dash_app)
         return dateless_dash_app
 
@@ -85,14 +80,14 @@ def find_stateless_by_name(name):
     except:  # pylint: disable=bare-except
         pass
 
-    dash_app = get_stateless_by_name(name)
+    dash_app = registry.get_local_stateless_by_name(name)
     dsa_app = StatelessApp(app_name=name)
     dsa_app.save()
     return dash_app
 
 
 def check_stateless_loaded():
-    for ua in get_local_stateless_list():
+    for ua in registry.apps:
         try:
             find_stateless_by_name(ua)
         except:

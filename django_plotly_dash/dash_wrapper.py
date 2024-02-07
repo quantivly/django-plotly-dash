@@ -66,41 +66,34 @@ usable_apps: dict[str, "DjangoDash"] = {}
 _stateless_app_lookup_func = None
 
 
-def add_usable_app(name: str, app: "DjangoDash") -> None:
-    "Add app to local registry by name"
-    global usable_apps  # pylint: disable=global-statement
-    usable_apps[name] = app
+class AppRegistry:
+    "Registry of all locally registered apps"
+
+    def __init__(self):
+        self.apps = {}
+
+    def get_local_stateless_by_name(self, name):
+        """
+        Locate a registered dash app by name, and return a DjangoDash instance encapsulating the app.
+        """
+        sa = self.apps.get(name, None)
+
+        if not sa:
+            global _stateless_app_lookup_func  # pylint: disable=global-statement
+
+            if _stateless_app_lookup_func is None:
+                _stateless_app_lookup_func = stateless_app_lookup_hook()
+
+            sa = _stateless_app_lookup_func(name)
+
+        if not sa:
+            # TODO wrap this in raising a 404 if not found
+            raise KeyError("Unable to find stateless DjangoApp called %s" % name)
+
+        return sa
 
 
-def all_apps():
-    "Return a dictionary of all locally registered apps with the slug name as key"
-    return usable_apps
-
-
-def get_local_stateless_list():
-    """Return a list of all locally registered stateless apps"""
-    return list(usable_apps)
-
-
-def get_local_stateless_by_name(name):
-    """
-    Locate a registered dash app by name, and return a DjangoDash instance encapsulating the app.
-    """
-    sa = usable_apps.get(name, None)
-
-    if not sa:
-        global _stateless_app_lookup_func  # pylint: disable=global-statement
-
-        if _stateless_app_lookup_func is None:
-            _stateless_app_lookup_func = stateless_app_lookup_hook()
-
-        sa = _stateless_app_lookup_func(name)
-
-    if not sa:
-        # TODO wrap this in raising a 404 if not found
-        raise KeyError("Unable to find stateless DjangoApp called %s" % name)
-
-    return sa
+registry = AppRegistry()
 
 
 class Holder:
@@ -134,11 +127,13 @@ class DjangoDash:
         suppress_callback_exceptions=False,
         external_stylesheets=None,
         external_scripts=None,
+        registry: AppRegistry = registry,
         **kwargs,
     ):  # pylint: disable=unused-argument, too-many-arguments
         # store arguments to pass them later to the WrappedDash instance
         self.external_stylesheets = external_stylesheets or []
         self.external_scripts = external_scripts or []
+        self.registry = registry
         self._kwargs = kwargs
         if kwargs:
             warnings.warn(
@@ -161,7 +156,7 @@ class DjangoDash:
         self.css = Holder()
         self.scripts = Holder()
 
-        add_usable_app(self._uid, self)
+        self.registry.apps[self._uid] = self
 
         if serve_locally is None:
             self._serve_locally = serve_locally_setting()

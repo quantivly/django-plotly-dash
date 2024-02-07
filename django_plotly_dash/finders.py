@@ -22,20 +22,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-import os
 import importlib
-
+import os
 from collections import OrderedDict
 
+from django.apps import apps
+from django.conf import settings
 from django.contrib.staticfiles.finders import BaseFinder
 from django.contrib.staticfiles.utils import get_files
-
 from django.core.files.storage import FileSystemStorage
 
-from django.conf import settings
-from django.apps import apps
-
-from django_plotly_dash.dash_wrapper import all_apps
+from django_plotly_dash.dash_wrapper import registry
 from django_plotly_dash.util import full_asset_path
 
 
@@ -206,8 +203,6 @@ class DashAssetFinder(BaseFinder):
 
         # Get all registered django dash apps
 
-        self.apps = all_apps()
-
         self.locations = []
         self.storages = OrderedDict()
 
@@ -216,10 +211,7 @@ class DashAssetFinder(BaseFinder):
             "*.pyc",
         ]
 
-        added_locations = {}
-
-        for app_slug, obj in self.apps.items():
-            caller_module = obj.caller_module
+        for app_slug, obj in registry.apps.items():
             location = obj.caller_module_location
             subdir = obj.assets_folder
 

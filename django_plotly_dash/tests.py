@@ -24,25 +24,20 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
 """
-
 import json
 from unittest.mock import patch
 
 import pytest
 
 # pylint: disable=bare-except
-from dash.dependencies import Input, State, Output
+from dash.dependencies import Input, Output, State
 from django.urls import reverse
 
 from django_plotly_dash import DjangoDash
-from django_plotly_dash.dash_wrapper import (
-    get_local_stateless_list,
-    get_local_stateless_by_name,
-)
+from django_plotly_dash.dash_wrapper import registry
 from django_plotly_dash.models import DashApp, find_stateless_by_name
-from django_plotly_dash.tests_dash_contract import fill_in_test_app, dash_contract_data
+from django_plotly_dash.tests_dash_contract import dash_contract_data, fill_in_test_app
 
 
 def test_dash_app():
@@ -78,8 +73,8 @@ def test_dash_stateful_app_client_contract(client):
     stateful_a.save()
 
     # check app can be found back
-    assert "DDash" in get_local_stateless_list()
-    assert get_local_stateless_by_name("DDash") == ddash
+    assert "DDash" in registry.apps
+    assert registry.apps["DDash"] == ddash
     assert find_stateless_by_name("DDash") == ddash
 
     # check the current_state is empty
@@ -339,10 +334,10 @@ def test_util_error_cases(settings):
     settings.PLOTLY_DASH = None
 
     from django_plotly_dash.util import (
-        pipe_ws_endpoint_name,
         dpd_http_endpoint_root,
         http_endpoint,
         insert_demo_migrations,
+        pipe_ws_endpoint_name,
     )
 
     assert pipe_ws_endpoint_name() == "dpd/ws/channel"
@@ -361,7 +356,7 @@ def test_util_error_cases(settings):
 def test_demo_routing():
     "Test configuration options for the demo"
 
-    from django_plotly_dash.util import pipe_ws_endpoint_name, insert_demo_migrations
+    from django_plotly_dash.util import insert_demo_migrations, pipe_ws_endpoint_name
 
     assert pipe_ws_endpoint_name() == "ws/channel"
     assert insert_demo_migrations()
@@ -371,9 +366,9 @@ def test_local_serving(settings):
     "Test local serve settings"
 
     from django_plotly_dash.util import (
+        full_asset_path,
         serve_locally,
         static_asset_root,
-        full_asset_path,
     )
 
     assert serve_locally() == settings.DEBUG
@@ -386,6 +381,7 @@ def test_direct_access(client):
     "Check direct use of a stateless application using demo test data"
 
     from django.urls import reverse
+
     from .app_name import main_view_label
 
     for route_name in ["layout", "dependencies", main_view_label]:
@@ -464,6 +460,7 @@ def test_injection_app_access(client):
     "Check direct use of a stateless application using demo test data"
 
     from django.urls import reverse
+
     from .app_name import main_view_label
 
     for route_name in ["layout", "dependencies", main_view_label]:
@@ -779,9 +776,9 @@ def test_argument_settings(settings, client):
     "Test the setting that controls how initial arguments are propagated through to the dash app"
 
     from django_plotly_dash.util import (
+        get_initial_arguments,
         initial_argument_location,
         store_initial_arguments,
-        get_initial_arguments,
     )
 
     assert initial_argument_location()
@@ -835,7 +832,7 @@ def test_stateless_lookup_noop():
 def test_middleware_artifacts():
     "Import and vaguely exercise middleware objects"
 
-    from django_plotly_dash.middleware import EmbeddedHolder, ContentCollector
+    from django_plotly_dash.middleware import ContentCollector, EmbeddedHolder
 
     eh = EmbeddedHolder()
     eh.add_css("some_css")
@@ -853,9 +850,9 @@ def test_finders():
     "Import and vaguely exercise staticfiles finders"
 
     from django_plotly_dash.finders import (
-        DashComponentFinder,
         DashAppDirectoryFinder,
         DashAssetFinder,
+        DashComponentFinder,
     )
 
     dcf = DashComponentFinder()
@@ -869,8 +866,9 @@ def test_finders():
 
 @pytest.mark.django_db
 def test_app_loading(client):
-    from django_plotly_dash.models import check_stateless_loaded
     from django.urls import reverse
+
+    from django_plotly_dash.models import check_stateless_loaded
 
     # Function should run wthout raising errors
     check_stateless_loaded()
