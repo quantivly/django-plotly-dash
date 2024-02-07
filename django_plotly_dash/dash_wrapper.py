@@ -31,7 +31,7 @@ import itertools
 import json
 import warnings
 from dataclasses import dataclass
-from typing import Callable
+from typing import Any, Callable
 
 import dash
 from dash import Dash, dependencies
@@ -653,7 +653,7 @@ class WrappedDash(Dash):
         )
 
     # pylint: disable=too-many-locals
-    def dispatch_with_args(self, body, argMap):
+    def dispatch_with_args(self, body: dict[str, Any], argMap: dict[str, Any]):
         "Perform callback dispatching, with enhanced arguments and recording of response"
         inputs = body.get("inputs", [])
         input_values = inputs_to_dict(inputs)
@@ -733,34 +733,18 @@ class WrappedDash(Dash):
             res = callback(*args, **argMap)
 
         if da:
-
-            class LazyJson:
-                """A class to allow delayed the evaluation of a dict (returned by `func`)
-                till the first get(...) is called on the dict."""
-
-                def __init__(self, func):
-                    self._root_value = func
-
-                def get(self, item, default):
-                    if isinstance(self._root_value, Callable):
-                        self._root_value = self._root_value()
-                    return self._root_value.get(item, default)
-
-            # wraps the json parsing of the response into LazyJson to avoid unnecessary parsing
-            root_value = LazyJson(lambda: json.loads(res).get("response", {}))
-
+            root_value = json.loads(res).get("response", {})
             for output_item in outputs:
                 if isinstance(output_item, str):
                     output_id, output_property = output_item.split(".")
                     if da.have_current_state_entry(output_id, output_property):
-                        value = root_value.get(output_id, {}).get(output_property, None)
+                        value = root_value.get(output_id, {}).get(output_property)
                         da.update_current_state(output_id, output_property, value)
                 else:
                     # todo: implement saving of state for pattern matching ouputs
                     raise NotImplementedError(
                         "Updating state for dict keys (pattern matching) is not yet implemented"
                     )
-
         return res
 
     def slugified_id(self):
