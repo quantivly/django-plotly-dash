@@ -25,15 +25,9 @@ SOFTWARE.
 import json
 import uuid
 
-
-from _plotly_utils.optional_imports import get_module
-
-
 from django.conf import settings
 from django.core.cache import cache
 from django.utils.module_loading import import_string
-
-from django_plotly_dash._patches import DjangoPlotlyJSONEncoder
 
 
 def _get_settings():
@@ -150,7 +144,7 @@ def static_path(relative_path):
 def stateless_app_lookup_hook():
     "Return a function that performs lookup for aa stateless app, given its name, or returns None"
 
-    func_name = _get_settings().get("stateless_loader", None)
+    func_name = _get_settings().get("stateless_loader")
     if func_name:
         func = import_string(func_name)
         return func

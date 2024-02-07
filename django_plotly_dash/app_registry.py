@@ -34,9 +34,7 @@ class AppRegistry:
         KeyError
             If the app is not found.
         """
-        app = None
-        if name not in self.apps:
-            app = self.lookup_stateless_app(name)
+        app = self.apps.get(name, self.lookup_stateless_app(name))
         if not app:
             # TODO wrap this in raising a 404 if not found
             raise KeyError(f"Unable to find stateless DjangoApp called {name}!")
