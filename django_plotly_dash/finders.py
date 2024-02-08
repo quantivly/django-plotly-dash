@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
+from __future__ import annotations
 
 import importlib
 import os
@@ -33,29 +34,19 @@ from django.contrib.staticfiles.utils import get_files
 from django.core.files.storage import FileSystemStorage
 
 from django_plotly_dash.dash_wrapper import registry
-from django_plotly_dash.util import full_asset_path
+from django_plotly_dash.utils import full_asset_path
+
+IGNORED_PATTERNS: list[str] = ["*.py", "*.pyc"]
 
 
 class DashComponentFinder(BaseFinder):
-    "Find static files in components"
-
-    # pylint: disable=abstract-method, redefined-builtin
+    """Find static files in components."""
 
     def __init__(self):
         self.locations = []
         self.storages = OrderedDict()
         self.components = {}
-
-        self.ignore_patterns = [
-            "*.py",
-            "*.pyc",
-        ]
-
-        try:
-            components = settings.PLOTLY_COMPONENTS
-        except:
-            components = []
-
+        components = getattr(settings, "PLOTLY_COMPONENTS", [])
         built_ins = [
             (
                 "dash",
@@ -76,7 +67,7 @@ class DashComponentFinder(BaseFinder):
                 module_name = ".".join(split_name)
                 module = importlib.import_module(module_name)
                 path_directory = os.path.dirname(module.__file__)
-            except:
+            except Exception:
                 module_name = ".".join(split_name[:-1])
                 module = importlib.import_module(module_name)
                 path_directory = os.path.join(
@@ -85,7 +76,7 @@ class DashComponentFinder(BaseFinder):
 
             root = path_directory
             storage = FileSystemStorage(location=root)
-            path = "dash/component/%s" % component_name
+            path = f"dash/component/{component_name}"
 
             # Path_directory is where from
             # path is desired url mount point of the content of path_directory
@@ -126,8 +117,8 @@ class DashComponentFinder(BaseFinder):
         for component_name in self.locations:
             storage = self.storages[component_name]
             location = storage.location  # dir on disc
+            component_path = f"dash/component/{component_name}"
 
-            component_path = "dash/component/%s" % component_name
             if (
                 len(path) > len(component_path)
                 and path[: len(component_path)] == component_path
@@ -137,19 +128,20 @@ class DashComponentFinder(BaseFinder):
                     if not all:
                         return matched_path
                     matches.append(matched_path)
-
         return matches
 
     # pylint: disable=inconsistent-return-statements, no-self-use
-    def find_location(self, path):
-        "Return location, if it exists"
+    def find_location(self, path: str) -> str | None:
+        """Return a filesystme location, if it exists."""
         if os.path.exists(path):
             return path
 
-    def list(self, ignore_patterns):
+    def list(self, ignore_patterns: list[str]):
         for component_name in self.locations:
             storage = self.storages[component_name]
-            for path in get_files(storage, ignore_patterns + self.ignore_patterns):
+            for path in get_files(
+                storage, ignore_patterns=ignore_patterns + IGNORED_PATTERNS
+            ):
                 yield path, storage
 
 
@@ -161,12 +153,6 @@ class DashAppDirectoryFinder(BaseFinder):
 
         self.locations = []
         self.storages = OrderedDict()
-
-        self.ignore_patterns = [
-            "*.py",
-            "*.pyc",
-        ]
-
         for app_config in apps.get_app_configs():
             path_directory = os.path.join(app_config.path, "assets")
 
@@ -184,10 +170,12 @@ class DashAppDirectoryFinder(BaseFinder):
     def find(self, path, all=False):
         return []
 
-    def list(self, ignore_patterns):
+    def list(self, ignore_patterns: list[str]):
         for component_name in self.locations:
             storage = self.storages[component_name]
-            for path in get_files(storage, ignore_patterns + self.ignore_patterns):
+            for path in get_files(
+                storage, ignore_patterns=ignore_patterns + IGNORED_PATTERNS
+            ):
                 yield path, storage
 
 
@@ -202,14 +190,8 @@ class DashAssetFinder(BaseFinder):
         importlib.import_module(root_urls)
 
         # Get all registered django dash apps
-
         self.locations = []
         self.storages = OrderedDict()
-
-        self.ignore_patterns = [
-            "*.py",
-            "*.pyc",
-        ]
 
         for app_slug, obj in registry.apps.items():
             location = obj.caller_module_location
@@ -232,8 +214,10 @@ class DashAssetFinder(BaseFinder):
     def find(self, path, all=False):
         return []
 
-    def list(self, ignore_patterns):
+    def list(self, ignore_patterns: list[str]):
         for component_name in self.locations:
             storage = self.storages[component_name]
-            for path in get_files(storage, ignore_patterns + self.ignore_patterns):
+            for path in get_files(
+                storage, ignore_patterns=ignore_patterns + IGNORED_PATTERNS
+            ):
                 yield path, storage
