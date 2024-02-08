@@ -29,7 +29,8 @@ from django.db import models
 from django.shortcuts import get_object_or_404
 from django.utils.text import slugify
 
-from django_plotly_dash.dash_wrapper import registry, wid2str
+from django_plotly_dash.dash_wrapper import registry
+from django_plotly_dash.utils import wid2str
 
 logger = logging.getLogger(__name__)
 

@@ -150,3 +150,16 @@ def stateless_app_lookup_hook():
 
     # Default is no additional lookup
     return lambda _: None
+
+
+def wid2str(wid):
+    """Convert a Python ID (``str`` or ``dict``) into its Dash representation.
+
+    References
+    ---------
+    - https://github.com/plotly/dash/blob/c5ba38f0ae7b7f8c173bda10b4a8ddd035f1d867/dash-renderer/src/actions/dependencies.js#L114
+    """
+    if isinstance(wid, str):
+        return wid
+    data = ",".join(f"{json.dumps(k)}:{json.dumps(v)}" for k, v in sorted(wid.items()))
+    return f"{{{data}}}"
