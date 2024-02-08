@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Callable
 
-from django_plotly_dash.util import stateless_app_lookup_hook
+from django_plotly_dash.utils import stateless_app_lookup_hook
 
 if TYPE_CHECKING:
-    from django_plotly_dash.dash_wrapper import DjangoDash
+    from django_plotly_dash.django_dash import DjangoDash
 
 
 class AppRegistry:

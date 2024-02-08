@@ -25,12 +25,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
+import django_plotly_dash._callback  # noqa: F401
+import django_plotly_dash._patches  # noqa: F401
+from django_plotly_dash.django_dash import DjangoDash
 
 from .version import __version__
 
-from .dash_wrapper import DjangoDash
-
-# Monkeypatching
-
-import django_plotly_dash._callback
-import django_plotly_dash._patches
+__all__ = ["DjangoDash", "__version__"]
