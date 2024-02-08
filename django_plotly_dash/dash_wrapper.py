@@ -53,21 +53,6 @@ class CallbackContext:
     triggered: list
 
 
-class Holder:
-    """Helper class for holding configuration options."""
-
-    def __init__(self):
-        self.items = []
-
-    def append_css(self, stylesheet):
-        """Add an extra CSS file name to the component package."""
-        self.items.append(stylesheet)
-
-    def append_script(self, script):
-        """Add an extra script file name to the component package."""
-        self.items.append(script)
-
-
 def wid2str(wid):
     """Convert a Python ID (``str`` or ``dict``) into its Dash representation.
 

@@ -10,8 +10,24 @@ from django.urls import reverse
 
 from django_plotly_dash.app_name import app_name, main_view_label
 from django_plotly_dash.app_registry import registry
+from django_plotly_dash.dash_wrapper import WrappedDash
 from django_plotly_dash.utils import serve_locally as serve_locally_setting
 from django_plotly_dash.utils import static_asset_path
+
+
+class Holder:
+    """Helper class for holding configuration options."""
+
+    def __init__(self):
+        self.items = []
+
+    def append_css(self, stylesheet):
+        """Add an extra CSS file name to the component package."""
+        self.items.append(stylesheet)
+
+    def append_script(self, script):
+        """Add an extra script file name to the component package."""
+        self.items.append(script)
 
 
 class DjangoDash:
