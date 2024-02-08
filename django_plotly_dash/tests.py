@@ -333,7 +333,7 @@ def test_util_error_cases(settings):
 
     settings.PLOTLY_DASH = None
 
-    from django_plotly_dash.util import (
+    from django_plotly_dash.utils import (
         dpd_http_endpoint_root,
         http_endpoint,
         insert_demo_migrations,
@@ -356,7 +356,7 @@ def test_util_error_cases(settings):
 def test_demo_routing():
     "Test configuration options for the demo"
 
-    from django_plotly_dash.util import insert_demo_migrations, pipe_ws_endpoint_name
+    from django_plotly_dash.utils import insert_demo_migrations, pipe_ws_endpoint_name
 
     assert pipe_ws_endpoint_name() == "ws/channel"
     assert insert_demo_migrations()
@@ -365,7 +365,7 @@ def test_demo_routing():
 def test_local_serving(settings):
     "Test local serve settings"
 
-    from django_plotly_dash.util import (
+    from django_plotly_dash.utils import (
         full_asset_path,
         serve_locally,
         static_asset_root,
@@ -775,7 +775,7 @@ def test_injection_updating(client):
 def test_argument_settings(settings, client):
     "Test the setting that controls how initial arguments are propagated through to the dash app"
 
-    from django_plotly_dash.util import (
+    from django_plotly_dash.utils import (
         get_initial_arguments,
         initial_argument_location,
         store_initial_arguments,
@@ -820,7 +820,7 @@ def test_argument_settings(settings, client):
 def test_stateless_lookup_noop():
     "Test no-op stateless lookup"
 
-    from django_plotly_dash.util import stateless_app_lookup_hook
+    from django_plotly_dash.utils import stateless_app_lookup_hook
 
     lh_hook = stateless_app_lookup_hook()
 

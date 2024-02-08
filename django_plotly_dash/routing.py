@@ -22,13 +22,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
-
+from channels.routing import ProtocolTypeRouter, URLRouter
 from django.urls import re_path
 
 from .consumers import MessageConsumer, PokePipeConsumer
-from .util import pipe_ws_endpoint_name, http_endpoint, http_poke_endpoint_enabled
+from .utils import http_endpoint, http_poke_endpoint_enabled, pipe_ws_endpoint_name
 
 try:
     from channels.http import AsgiHandler

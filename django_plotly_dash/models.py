@@ -21,7 +21,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-
 import json
 import logging
 
@@ -36,14 +35,19 @@ logger = logging.getLogger(__name__)
 
 
 class StatelessApp(models.Model):
-    """
-    A stateless Dash app. An instance of this model represents a dash app without any specific state
-    """
+    """Represents a Dash app without any specific state."""
 
     app_name = models.CharField(max_length=100, blank=False, null=False, unique=True)
     slug = models.SlugField(max_length=110, unique=True, blank=True)
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """Returns the string representation of this instance.
+
+        Returns
+        -------
+        str
+            The string representation of this instance.
+        """
         return self.app_name
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
@@ -57,9 +61,7 @@ class StatelessApp(models.Model):
         return super().save(*args, **kwargs)
 
     def as_dash_app(self):
-        """
-        Return a DjangoDash instance of the dash application
-        """
+        """Returns a DjangoDash instance of the Dash application."""
         dateless_dash_app = getattr(self, "_stateless_dash_app_instance", None)
         if not dateless_dash_app:
             dateless_dash_app = registry.get(self.app_name)
@@ -88,7 +90,7 @@ def check_stateless_loaded():
     for ua in registry.apps:
         try:
             find_stateless_by_name(ua)
-        except:
+        except Exception:
             logger.warning(
                 "django-plotly-dash: Unable to create stateless instance: " + str(ua)
             )
@@ -110,10 +112,10 @@ class StatelessAppAdmin(admin.ModelAdmin):
         # Check all existing apps, keep if OK
         for sa in queryset.all():
             try:
-                q = sa.as_dash_app()
-            except:
+                sa.as_dash_app()
+            except Exception:
                 logger.warning(
-                    "django-plotly-dash: Unable to load stateless app: " + str(sa)
+                    f"django-plotly-dash: Unable to load stateless app: {sa}"
                 )
 
     check_registered.short_description = "Check stateless apps"
@@ -124,9 +126,7 @@ class StatelessAppAdmin(admin.ModelAdmin):
 
 
 class DashApp(models.Model):
-    """
-    An instance of this model represents a dash application and its internal state
-    """
+    """An instance of this model represents a Dash application and its internal state."""
 
     stateless_app = models.ForeignKey(
         StatelessApp, on_delete=models.PROTECT, unique=False, null=False, blank=False
@@ -143,7 +143,14 @@ class DashApp(models.Model):
     update = models.DateTimeField(auto_now=True)
     save_on_change = models.BooleanField(null=False, default=False)
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """Returns the string representation of this instance.
+
+        Returns
+        -------
+        str
+            The string representation of this instance.
+        """
         return self.instance_name
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
@@ -158,8 +165,7 @@ class DashApp(models.Model):
         super().save(*args, **kwargs)
 
     def handle_current_state(self):
-        """
-        Check to see if the current hydrated state and the saved state are different.
+        """Check to see if the current hydrated state and the saved state are different.
 
         If they are, then persist the current state in the database by saving the model instance.
         """
@@ -173,16 +179,15 @@ class DashApp(models.Model):
                 self.save()
 
     def have_current_state_entry(self, wid, key):
-        "Return True if there is a cached current state for this app"
+        """Return True if there is a cached current state for this app."""
         cscoll = self.current_state()
         c_state = cscoll.get(wid2str(wid), {})
         return key in c_state
 
     def update_current_state(self, wid, key, value):
-        """
-        Update current state with a (possibly new) value associated with key
+        """Update current state with a (possibly new) value associated with key.
 
-        If the key does not represent an existing entry, then ignore it
+        If the key does not represent an existing entry, ignore it.
         """
         cscoll = self.current_state()
         c_state = cscoll.get(wid2str(wid), {})
@@ -193,11 +198,9 @@ class DashApp(models.Model):
                 setattr(self, "_current_state_hydrated_changed", True)
 
     def current_state(self):
-        """
-        Return the current internal state of the model instance.
+        """Return the current internal state of the model instance.
 
-        This is not necessarily the same as the persisted state
-        stored in the self.base_state variable.
+        This is not necessarily the same as the persisted state stored in the self.base_state variable.
         """
         c_state = getattr(self, "_current_state_hydrated", None)
         if not c_state:
@@ -215,25 +218,18 @@ class DashApp(models.Model):
         )
 
     def _get_base_state(self):
-        """
-        Get the base state of the object, as defined by the app.layout code, as a python dict
-        """
+        """Get the base state of the object, as defined by the app.layout code, as a ``dict``."""
         base_app_inst = self.stateless_app.as_dash_app().as_dash_instance()  # pylint: disable=no-member
-
         # Get base layout response, from a base object
         base_resp = base_app_inst.locate_endpoint_function("dash-layout")()
-
         base_obj = json.loads(base_resp.data.decode("utf-8"))
-
         # Walk the base layout and find all values; insert into base state map
         obj = {}
         base_app_inst.walk_tree_and_extract(base_obj, obj)
         return obj
 
-    def populate_values(self):
-        """
-        Add values from the underlying dash layout configuration
-        """
+    def populate_values(self) -> None:
+        """Add values from the underlying Dash layout configuration."""
         obj = self._get_base_state()
         self.base_state = json.dumps(obj)
 
@@ -241,17 +237,17 @@ class DashApp(models.Model):
     def locate_item(ident, stateless=False, cache_id=None):
         """Locate a dash application, given either the
         slug of an instance or the name for a stateless app"""
-        if stateless:
-            dash_app = find_stateless_by_name(ident)
-        else:
-            dash_app = get_object_or_404(DashApp, slug=ident)
-
+        dash_app = (
+            find_stateless_by_name(ident)
+            if stateless
+            else get_object_or_404(DashApp, slug=ident)
+        )
         app = dash_app.as_dash_instance(cache_id=cache_id)
         return dash_app, app
 
 
 class DashAppAdmin(admin.ModelAdmin):
-    "Admin class for DashApp model"
+    """Admin class for DashApp model."""
 
     list_display = [
         "instance_name",
@@ -268,14 +264,14 @@ class DashAppAdmin(admin.ModelAdmin):
         "stateless_app",
     ]
 
-    def _populate_values(self, request, queryset):  # pylint: disable=no-self-use, unused-argument
+    def _populate_values(self, _, queryset):  # pylint: disable=no-self-use, unused-argument
         for dash_app in queryset:
             dash_app.populate_values()
             dash_app.save()
 
     _populate_values.short_description = "Populate app instance"
 
-    def _clone(self, request, queryset):  # pylint: disable=no-self-use, unused-argument
+    def _clone(self, _, queryset):  # pylint: disable=no-self-use, unused-argument
         for dash_app in queryset:
             nda = DashApp(
                 stateless_app=dash_app.stateless_app,

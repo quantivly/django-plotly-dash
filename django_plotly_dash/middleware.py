@@ -22,10 +22,8 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
 """
-
-from .util import serve_locally, static_path
+from .utils import serve_locally, static_path
 
 # pylint: disable=too-few-public-methods
 
@@ -121,7 +119,7 @@ try:
     from dpd_static_support.mappings import static_substitutions as dpd_ss_substitutions
 
     dpd_substitutions += [(x, static_path(y)) for x, y in dpd_ss_substitutions]
-except Exception as e:
+except Exception:
     pass
 
 

@@ -3,7 +3,8 @@
 # pylint: skip-file
 
 from django.db import migrations
-from ..util import insert_demo_migrations
+
+from ..utils import insert_demo_migrations
 
 
 def addExamples(apps, schema_editor):
