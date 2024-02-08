@@ -9,14 +9,14 @@ if TYPE_CHECKING:
 
 
 class AppRegistry:
-    "Registry of all locally registered apps"
+    """A registry for stateless apps."""
 
     _stateless_app_lookup_func: Callable | None = None
 
     def __init__(self):
         self.apps: dict[str, DjangoDash] = {}
 
-    def get_local_stateless_by_name(self, name: str) -> DjangoDash:
+    def get(self, name: str) -> DjangoDash:
         """Get a stateless app by name.
 
         Parameters
@@ -34,7 +34,9 @@ class AppRegistry:
         KeyError
             If the app is not found.
         """
-        app = self.apps.get(name, self.lookup_stateless_app(name))
+        app = self.apps.get(name)
+        if app is None:
+            app = self.lookup_stateless_app(name)
         if not app:
             # TODO wrap this in raising a 404 if not found
             raise KeyError(f"Unable to find stateless DjangoApp called {name}!")

@@ -62,7 +62,7 @@ class StatelessApp(models.Model):
         """
         dateless_dash_app = getattr(self, "_stateless_dash_app_instance", None)
         if not dateless_dash_app:
-            dateless_dash_app = registry.get_local_stateless_by_name(self.app_name)
+            dateless_dash_app = registry.get(self.app_name)
             setattr(self, "_stateless_dash_app_instance", dateless_dash_app)
         return dateless_dash_app
 
@@ -77,7 +77,7 @@ def find_stateless_by_name(name: str):
     try:
         app_instance = StatelessApp.objects.get(app_name=name)  # pylint: disable=no-member
     except StatelessApp.DoesNotExist:
-        dash_app = registry.get_local_stateless_by_name(name)
+        dash_app = registry.get(name)
         app_instance = StatelessApp.objects.create(app_name=name)
         return dash_app
     else:
