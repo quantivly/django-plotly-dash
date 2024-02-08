@@ -28,13 +28,11 @@ SOFTWARE.
 
 import json
 
-
-from plotly.io._json import config, clean_to_json_compatible
-from plotly.utils import PlotlyJSONEncoder
-
 from _plotly_utils.optional_imports import get_module
 from django.utils.encoding import force_str
 from django.utils.functional import Promise
+from plotly.io._json import clean_to_json_compatible, config
+from plotly.utils import PlotlyJSONEncoder
 
 
 class DjangoPlotlyJSONEncoder(PlotlyJSONEncoder):

@@ -37,9 +37,10 @@ from dash._utils import inputs_to_dict, split_callback_id
 from django.utils.text import slugify
 from flask import Flask
 
+from django_plotly_dash._patches import DjangoPlotlyJSONEncoder
 from django_plotly_dash.middleware import EmbeddedHolder
 from django_plotly_dash.pseudo_flask import PseudoFlask
-from django_plotly_dash.utils import DjangoPlotlyJSONEncoder, wid2str
+from django_plotly_dash.utils import wid2str
 
 
 @dataclass(frozen=True)
