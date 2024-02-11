@@ -2,35 +2,29 @@
 # Monkey patching of register_callback
 #
 
-import dash._callback
-
-from dash._callback import (
-    handle_grouped_callback_args,
-    insert_callback,
-    NoUpdate,
-)
 import collections
 from functools import wraps
 
-from dash.dependencies import (
-    handle_callback_args,
+import dash._callback
+from dash import _validate
+from dash._callback import (
+    NoUpdate,
     handle_grouped_callback_args,
-    Output,
+    insert_callback,
 )
-from dash.exceptions import PreventUpdate
-
 from dash._grouping import (
     flatten_grouping,
-    make_grouping_by_index,
     grouping_len,
+    make_grouping_by_index,
 )
 from dash._utils import (
-    create_callback_id,
     stringify_id,
     to_json,
 )
-
-from dash import _validate
+from dash.dependencies import (
+    Output,
+)
+from dash.exceptions import PreventUpdate
 
 
 def register_callback(
