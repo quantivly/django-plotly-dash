@@ -14,6 +14,8 @@ from django_plotly_dash.dash_wrapper import WrappedDash
 from django_plotly_dash.utils import serve_locally as serve_locally_setting
 from django_plotly_dash.utils import static_asset_path
 
+CALLBACK_PART_KEYS: tuple[str] = "output", "inputs", "state", "prevent_initial_call"
+
 
 class Holder:
     """Helper class for holding configuration options."""
@@ -254,7 +256,7 @@ class DjangoDash:
         It uses the inputs and the state information to identify what arguments are already coming from Dash.
 
         It returns a list of the expanded parameters to inject (can be [] if nothing should be injected)
-         or None if all parameters should be injected.
+        or None if all parameters should be injected.
 
         Parameters
         ----------
@@ -303,15 +305,8 @@ class DjangoDash:
         If the function has a *args => expanded arguments matching parameters after the *args are injected.
         Otherwise, take all arguments beyond the one provided by Dash (based on the Inputs/States provided).
         """
-        output, inputs, state, prevent_initial_call = dependencies.handle_callback_args(
-            args, kwargs
-        )
-        callback_set = {
-            "output": output,
-            "inputs": inputs,
-            "state": state,
-            "prevent_initial_call": prevent_initial_call,
-        }
+        callback_parts = dependencies.handle_callback_args(args, kwargs)
+        callback_set = dict(zip(CALLBACK_PART_KEYS, callback_parts))
 
         def wrap_func(func: Callable):
             self._callback_sets.append((callback_set, func))
@@ -319,7 +314,9 @@ class DjangoDash:
             # to inject properly only the expanded arguments the function can accept
             # if .expanded is None => inject all
             # if .expanded is a list => inject only
-            func.expanded = DjangoDash.get_expanded_arguments(func, inputs, state)
+            func.expanded = DjangoDash.get_expanded_arguments(
+                func, callback_parts["inputs"], callback_parts["state"]
+            )
             return func
 
         return wrap_func

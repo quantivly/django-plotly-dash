@@ -126,9 +126,7 @@ class WrappedDash(Dash):
         # Walk tree. If at any point we have an element whose id
         # matches, then replace any named values at this level
         reworked_data = self.walk_tree_and_replace(baseData, overrides)
-
         response_data = json.dumps(reworked_data, cls=DjangoPlotlyJSONEncoder)
-
         return response_data, base_response.mimetype
 
     def walk_tree_and_extract(self, data: dict | list, target: dict) -> None:
