@@ -86,15 +86,6 @@ class WrappedDash(Dash):
 
         self._return_embedded = False
 
-    def use_dash_dispatch(self):
-        """Return True if underlying dash dispatching should be used.
-
-        This stub is present to allow older code to work. Following PR #304
-        (see https://github.com/GibbsConsulting/django-plotly-dash/pull/304/files for
-        details) this function is no longer needed and therefore should always
-        return False"""
-        return False
-
     def use_dash_layout(self):
         """Indicate if the underlying Dash layout can be used.
 
