@@ -274,26 +274,26 @@ class DjangoDash:
         """
         n_dash_parameters = len(inputs or []) + len(state or [])
 
-        parameter_types = {
+        parameters_by_kind = {
             kind: [p.name for p in parameters]
             for kind, parameters in itertools.groupby(
                 inspect.signature(func).parameters.values(), lambda p: p.kind
             )
         }
-        if inspect.Parameter.VAR_KEYWORD in parameter_types:
+        keyword_only = parameters_by_kind.get(inspect.Parameter.KEYWORD_ONLY, [])
+        if inspect.Parameter.VAR_KEYWORD in parameters_by_kind:
             # there is some **kwargs, inject all parameters
-            expanded = None
-        elif inspect.Parameter.VAR_POSITIONAL in parameter_types:
+            return
+        elif inspect.Parameter.VAR_POSITIONAL in parameters_by_kind:
             # there is a *args, assume all parameters afterwards (KEYWORD_ONLY) are to be injected
             # some of these parameters may not be expanded arguments but that is ok
-            expanded = parameter_types.get(inspect.Parameter.KEYWORD_ONLY, [])
+            return keyword_only
         else:
             # there is no **kwargs, filter argMap to take only the keyword arguments
-            expanded = parameter_types.get(inspect.Parameter.POSITIONAL_OR_KEYWORD, [])[
-                n_dash_parameters:
-            ] + parameter_types.get(inspect.Parameter.KEYWORD_ONLY, [])
-
-        return expanded
+            non_dash_parameters = parameters_by_kind.get(
+                inspect.Parameter.POSITIONAL_OR_KEYWORD, []
+            )[n_dash_parameters:]
+            return non_dash_parameters + keyword_only
 
     def callback(self, *args, **kwargs):
         """Form a callback function by wrapping, in the same way as the underlying Dash application would
