@@ -38,7 +38,6 @@ from django.utils.text import slugify
 from flask import Flask
 
 from django_plotly_dash._patches import DjangoPlotlyJSONEncoder
-from django_plotly_dash.django_dash import expanded_parameters
 from django_plotly_dash.middleware import EmbeddedHolder
 from django_plotly_dash.pseudo_flask import PseudoFlask
 from django_plotly_dash.utils import wid2str
@@ -323,6 +322,8 @@ class WrappedDash(Dash):
     # pylint: disable=too-many-locals
     def dispatch_with_args(self, body: dict[str, Any], argMap: dict[str, Any]):
         """Perform callback dispatching, with enhanced arguments and recording of response."""
+        from django_plotly_dash.django_dash import expanded_parameters
+
         inputs_list = body.get("inputs", [])
         input_values = inputs_to_dict(inputs_list)
         states = body.get("state", [])
