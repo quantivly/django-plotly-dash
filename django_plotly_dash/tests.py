@@ -35,7 +35,7 @@ from dash.dependencies import Input, Output, State
 from django.urls import reverse
 
 from django_plotly_dash import DjangoDash
-from django_plotly_dash.dash_wrapper import registry
+from django_plotly_dash.app_registry import registry
 from django_plotly_dash.models import DashApp, find_stateless_by_name
 from django_plotly_dash.tests_dash_contract import dash_contract_data, fill_in_test_app
 

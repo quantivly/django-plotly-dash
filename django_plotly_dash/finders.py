@@ -33,7 +33,7 @@ from django.contrib.staticfiles.finders import BaseFinder
 from django.contrib.staticfiles.utils import get_files
 from django.core.files.storage import FileSystemStorage
 
-from django_plotly_dash.dash_wrapper import registry
+from django_plotly_dash.app_registry import registry
 from django_plotly_dash.utils import full_asset_path
 
 IGNORED_PATTERNS: list[str] = ["*.py", "*.pyc"]
