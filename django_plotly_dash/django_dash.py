@@ -318,7 +318,7 @@ class DjangoDash:
             # to inject properly only the expanded arguments the function can accept
             # if .expanded is None => inject all
             # if .expanded is a list => inject only
-            expanded_parameters[func] = self.get_expanded_arguments(
+            expanded_parameters[func.__qualname__] = self.get_expanded_arguments(
                 func,
                 callback_set["inputs"],
                 callback_set["state"],

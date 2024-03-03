@@ -392,7 +392,7 @@ class WrappedDash(Dash):
         callback = callback_info["callback"]
         # smart injection of parameters if .expanded is defined
         try:
-            parameters = expanded_parameters[callback]
+            parameters = expanded_parameters[callback.__qualname__]
         except KeyError as e:
             message = f"Callback {callback} not found in expanded_parameters:\n{expanded_parameters}"
             raise KeyError(message) from e
