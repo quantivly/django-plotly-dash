@@ -320,8 +320,8 @@ class DjangoDash:
             # if .expanded is a list => inject only
             expanded_parameters[func] = self.get_expanded_arguments(
                 func,
-                callback_parts["inputs"],
-                callback_parts["state"],
+                callback_set["inputs"],
+                callback_set["state"],
             )
             return func
 
