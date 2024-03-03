@@ -14,7 +14,11 @@ from django_plotly_dash.dash_wrapper import WrappedDash
 from django_plotly_dash.utils import serve_locally as serve_locally_setting
 from django_plotly_dash.utils import static_asset_path
 
+#: The keys used to store the parts of a callback.
 CALLBACK_PART_KEYS: tuple[str] = "output", "inputs", "state", "prevent_initial_call"
+
+#: The expanded parameters to inject when calling a function.
+expanded_parameters: dict[Callable, list[str] | None] = {}
 
 
 class Holder:
@@ -314,8 +318,10 @@ class DjangoDash:
             # to inject properly only the expanded arguments the function can accept
             # if .expanded is None => inject all
             # if .expanded is a list => inject only
-            func.expanded = DjangoDash.get_expanded_arguments(
-                func, callback_parts["inputs"], callback_parts["state"]
+            expanded_parameters[func] = self.get_expanded_arguments(
+                func,
+                callback_parts["inputs"],
+                callback_parts["state"],
             )
             return func
 

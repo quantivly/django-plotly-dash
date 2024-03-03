@@ -38,6 +38,7 @@ from django.utils.text import slugify
 from flask import Flask
 
 from django_plotly_dash._patches import DjangoPlotlyJSONEncoder
+from django_plotly_dash.django_dash import expanded_parameters
 from django_plotly_dash.middleware import EmbeddedHolder
 from django_plotly_dash.pseudo_flask import PseudoFlask
 from django_plotly_dash.utils import wid2str
@@ -331,7 +332,6 @@ class WrappedDash(Dash):
         triggered_inputs = [
             {"prop_id": x, "value": input_values.get(x)} for x in changed_props
         ]
-
         callback_context_info = {
             "inputs_list": inputs_list,
             "inputs": input_values,
@@ -341,7 +341,6 @@ class WrappedDash(Dash):
             "outputs": outputs_list,
             "triggered": triggered_inputs,
         }
-
         callback_context = CallbackContext(**callback_context_info)
 
         # Overload dash global variable
@@ -391,8 +390,8 @@ class WrappedDash(Dash):
 
         callback = callback_info["callback"]
         # smart injection of parameters if .expanded is defined
-        if callback.expanded is not None:
-            parameters_to_inject = {*callback.expanded, "outputs_list"}
+        if expanded_parameters[callback] is not None:
+            parameters_to_inject = {*expanded_parameters[callback], "outputs_list"}
             res = callback(
                 *args, **{k: v for k, v in argMap.items() if k in parameters_to_inject}
             )
