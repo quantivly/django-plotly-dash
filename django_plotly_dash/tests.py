@@ -382,7 +382,7 @@ def test_direct_access(client):
 
     from django.urls import reverse
 
-    from .app_name import main_view_label
+    from django_plotly_dash.app_name import main_view_label
 
     for route_name in ["layout", "dependencies", main_view_label]:
         for prefix, arg_map in [
@@ -461,7 +461,7 @@ def test_injection_app_access(client):
 
     from django.urls import reverse
 
-    from .app_name import main_view_label
+    from django_plotly_dash.app_name import main_view_label
 
     for route_name in ["layout", "dependencies", main_view_label]:
         for prefix, arg_map in [

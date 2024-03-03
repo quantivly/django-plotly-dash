@@ -23,7 +23,7 @@ SOFTWARE.
 """
 from django.contrib import admin
 
-from .models import (
+from django_plotly_dash.models import (
     DashApp,
     DashAppAdmin,
     StatelessApp,

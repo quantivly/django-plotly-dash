@@ -26,8 +26,12 @@ from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
 from django.urls import re_path
 
-from .consumers import MessageConsumer, PokePipeConsumer
-from .utils import http_endpoint, http_poke_endpoint_enabled, pipe_ws_endpoint_name
+from django_plotly_dash.consumers import MessageConsumer, PokePipeConsumer
+from django_plotly_dash.utils import (
+    http_endpoint,
+    http_poke_endpoint_enabled,
+    pipe_ws_endpoint_name,
+)
 
 try:
     from channels.http import AsgiHandler

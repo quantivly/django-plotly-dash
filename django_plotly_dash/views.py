@@ -27,10 +27,9 @@ SOFTWARE.
 import json
 from json import JSONDecodeError
 
+from dash.exceptions import PreventUpdate
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
-
-from dash.exceptions import PreventUpdate
 
 try:
     from dash.fingerprint import check_fingerprint
@@ -40,8 +39,8 @@ except:
         return resource, None
 
 
-from .models import DashApp, check_stateless_loaded
-from .util import get_initial_arguments, static_path
+from django_plotly_dash.models import DashApp, check_stateless_loaded
+from django_plotly_dash.utils import get_initial_arguments, static_path
 
 
 def routes(*args, **kwargs):

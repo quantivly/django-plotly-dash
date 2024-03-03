@@ -4,7 +4,7 @@
 
 from django.db import migrations
 
-from ..utils import insert_demo_migrations
+from django_plotly_dash.utils import insert_demo_migrations
 
 
 def addExamples(apps, schema_editor):

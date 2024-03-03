@@ -28,7 +28,6 @@ SOFTWARE.
 import django_plotly_dash._callback  # noqa: F401
 import django_plotly_dash._patches  # noqa: F401
 from django_plotly_dash.django_dash import DjangoDash
-
-from .version import __version__
+from django_plotly_dash.version import __version__
 
 __all__ = ["DjangoDash", "__version__"]

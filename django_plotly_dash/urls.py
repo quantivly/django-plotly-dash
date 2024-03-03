@@ -27,22 +27,20 @@ SOFTWARE.
 from django.urls import path
 from django.views.decorators.csrf import csrf_exempt
 
-from .views import (
-    routes,
-    layout,
-    dependencies,
-    update,
-    main_view,
-    component_suites,
-    component_component_suites,
+from django_plotly_dash.access import process_view_function
+from django_plotly_dash.app_name import app_name, main_view_label  # noqa: F401
+from django_plotly_dash.views import (
+    add_stateless_apps,
     asset_redirection,
+    component_component_suites,
+    component_suites,
     component_suites_build,
+    dependencies,
+    layout,
+    main_view,
+    routes,
+    update,
 )
-from .views import add_stateless_apps
-
-from .app_name import app_name, main_view_label
-
-from .access import process_view_function
 
 urlpatterns = [
     path("add_stateless_apps", add_stateless_apps, name="add_stateless_apps"),

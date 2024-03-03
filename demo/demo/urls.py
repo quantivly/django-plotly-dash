@@ -16,43 +16,70 @@ Including another URLconf
 
 # pylint: disable=wrong-import-position,wrong-import-order
 
-from django.contrib import admin
-from django.urls import include, path
-
-from django.views.generic import TemplateView
-
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib import admin
+from django.urls import include, path
+from django.views.generic import TemplateView
 
 # Load demo plotly apps - this triggers their registration
-import demo.plotly_apps      # pylint: disable=unused-import
-import demo.dash_apps        # pylint: disable=unused-import
-import demo.bootstrap_app    # pylint: disable=unused-import
-import demo.mantine_example  # pylint: disable=unused-import
-
-
-from django_plotly_dash.views import add_to_session
-
-from .views import dash_example_1_view, session_state_view
-
+from django_plotly_dash.views import (
+    add_to_session,
+    dash_example_1_view,
+    session_state_view,
+)
 
 urlpatterns = [
-    path('', TemplateView.as_view(template_name='index.html'), name="home"),
-    path('demo-one', TemplateView.as_view(template_name='demo_one.html'), name="demo-one"),
-    path('demo-two', TemplateView.as_view(template_name='demo_two.html'), name="demo-two"),
-    path('demo-three', TemplateView.as_view(template_name='demo_three.html'), name="demo-three"),
-    path('demo-four', TemplateView.as_view(template_name='demo_four.html'), name="demo-four"),
-    path('demo-five', TemplateView.as_view(template_name='demo_five.html'), name="demo-five"),
-    path('demo-six', dash_example_1_view, name="demo-six"),
-    path('demo-seven', TemplateView.as_view(template_name='demo_seven.html'), name="demo-seven"),
-    path('demo-eight', session_state_view, {'template_name':'demo_eight.html'}, name="demo-eight"),
-    path('demo-nine', TemplateView.as_view(template_name='demo_nine.html'), name="demo-nine"),
-    path('demo-ten', TemplateView.as_view(template_name='demo_ten.html'), name="demo-ten"),
-    path('demo-eleven', TemplateView.as_view(template_name='demo_eleven.html'), name="demo-eleven"),
-    path('admin/', admin.site.urls),
-    path('django_plotly_dash/', include('django_plotly_dash.urls')),
-
-    path('demo-session-var', add_to_session, name="session-variable-example"),
+    path("", TemplateView.as_view(template_name="index.html"), name="home"),
+    path(
+        "demo-one", TemplateView.as_view(template_name="demo_one.html"), name="demo-one"
+    ),
+    path(
+        "demo-two", TemplateView.as_view(template_name="demo_two.html"), name="demo-two"
+    ),
+    path(
+        "demo-three",
+        TemplateView.as_view(template_name="demo_three.html"),
+        name="demo-three",
+    ),
+    path(
+        "demo-four",
+        TemplateView.as_view(template_name="demo_four.html"),
+        name="demo-four",
+    ),
+    path(
+        "demo-five",
+        TemplateView.as_view(template_name="demo_five.html"),
+        name="demo-five",
+    ),
+    path("demo-six", dash_example_1_view, name="demo-six"),
+    path(
+        "demo-seven",
+        TemplateView.as_view(template_name="demo_seven.html"),
+        name="demo-seven",
+    ),
+    path(
+        "demo-eight",
+        session_state_view,
+        {"template_name": "demo_eight.html"},
+        name="demo-eight",
+    ),
+    path(
+        "demo-nine",
+        TemplateView.as_view(template_name="demo_nine.html"),
+        name="demo-nine",
+    ),
+    path(
+        "demo-ten", TemplateView.as_view(template_name="demo_ten.html"), name="demo-ten"
+    ),
+    path(
+        "demo-eleven",
+        TemplateView.as_view(template_name="demo_eleven.html"),
+        name="demo-eleven",
+    ),
+    path("admin/", admin.site.urls),
+    path("django_plotly_dash/", include("django_plotly_dash.urls")),
+    path("demo-session-var", add_to_session, name="session-variable-example"),
 ]
 
 
