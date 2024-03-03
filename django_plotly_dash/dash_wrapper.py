@@ -391,10 +391,19 @@ class WrappedDash(Dash):
 
         callback = callback_info["callback"]
         # smart injection of parameters if .expanded is defined
-        if expanded_parameters[callback] is not None:
-            parameters_to_inject = {*expanded_parameters[callback], "outputs_list"}
+        try:
+            parameters = expanded_parameters[callback]
+        except KeyError as e:
+            message = f"Callback {callback} not found in expanded_parameters:\n{expanded_parameters}"
+            raise KeyError(message) from e
+        if parameters is not None:
             res = callback(
-                *args, **{k: v for k, v in argMap.items() if k in parameters_to_inject}
+                *args,
+                **{
+                    k: v
+                    for k, v in argMap.items()
+                    if k in {*parameters, "outputs_list"}
+                },
             )
         else:
             res = callback(*args, **argMap)
